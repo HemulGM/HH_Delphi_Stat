@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{C48020B8-5DFF-42F0-9158-B724C62CF2F1}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="hh_delphi_stat.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Chart\delphi_stat_chart.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\VKBotInformer\VKBotNerd.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="hh_delphi_stat">
+        <MSBuild Projects="hh_delphi_stat.dproj"/>
+    </Target>
+    <Target Name="hh_delphi_stat:Clean">
+        <MSBuild Projects="hh_delphi_stat.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hh_delphi_stat:Make">
+        <MSBuild Projects="hh_delphi_stat.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="delphi_stat_chart">
+        <MSBuild Projects="Chart\delphi_stat_chart.dproj"/>
+    </Target>
+    <Target Name="delphi_stat_chart:Clean">
+        <MSBuild Projects="Chart\delphi_stat_chart.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="delphi_stat_chart:Make">
+        <MSBuild Projects="Chart\delphi_stat_chart.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="VKBotNerd">
+        <MSBuild Projects="..\VKBotInformer\VKBotNerd.dproj"/>
+    </Target>
+    <Target Name="VKBotNerd:Clean">
+        <MSBuild Projects="..\VKBotInformer\VKBotNerd.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="VKBotNerd:Make">
+        <MSBuild Projects="..\VKBotInformer\VKBotNerd.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="hh_delphi_stat;delphi_stat_chart;VKBotNerd"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="hh_delphi_stat:Clean;delphi_stat_chart:Clean;VKBotNerd:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="hh_delphi_stat:Make;delphi_stat_chart:Make;VKBotNerd:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
