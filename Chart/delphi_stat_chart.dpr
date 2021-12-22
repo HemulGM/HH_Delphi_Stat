@@ -269,9 +269,9 @@ procedure SendPictureToTelegram(ChatId: string; Stream: TStream);
 begin
   try
     Stream.Position := 0;
-    TDownload.PostRequest('https://api.telegram.org/' + TG_BOT_TOKEN +
+    TDownload.PostFile('https://api.telegram.org/' + TG_BOT_TOKEN +
       '/sendPhoto?chat_id=' + ChatId +
-      '&caption=' + TURLEncoding.URL.Encode('HH Stat ' + FormatDateTime('DD.MM.YYYY + 30', IncMonth(GetDate, -1))), Stream);
+      '&caption=' + TURLEncoding.URL.Encode('HH Stat ' + FormatDateTime('DD.MM.YYYY + 30', IncMonth(GetDate, -1))), 'photo', 'image.png', Stream);
   except
     on E: Exception do
       Writeln('Не смогли отправить в Телеграм (', ChatId, ')', E.Message);
