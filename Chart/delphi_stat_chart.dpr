@@ -26,11 +26,12 @@ const
   TG_BOT_TOKEN = {$INCLUDE ..\bot_key.api_key};
   VK_BOT_TOKEN = {$INCLUDE ..\vk_bot_key.api_key};
 
+
 const
   MonthStart = 1;
   MonthEnd = 30;
   {$IFDEF DEBUG}
-  DATA_BASE_FILE = '..\..\..\Win32\Debug\stat.db';
+  DATA_BASE_FILE = '..\..\..\Win32\Release\stat.db';
   {$ENDIF}
   {$IFDEF RELEASE}
   DATA_BASE_FILE = '..\..\..\Win32\Release\stat.db';
@@ -191,7 +192,7 @@ begin
     begin
       var Value := Trunc((MaxValue / 100 * ((100 / (PointVertCount - 1)) * s)) / 100) * 100;
       var PY := ChartHeigth - ((100 / MaxValue * Value) / 100) * (ChartHeigth - OffsetTop);
-      BMP.Canvas.FillText(TRectF.Create(TPointF.Create(20, PY-10), 100, TextHeigth), Value.ToString, False, 1, [], TTextAlign.Leading, TTextAlign.Leading);
+      BMP.Canvas.FillText(TRectF.Create(TPointF.Create(20, PY - 10), 100, TextHeigth), Value.ToString, False, 1, [], TTextAlign.Leading, TTextAlign.Leading);
 
       BMP.Canvas.DrawLine(TPointF.Create(Offset + Mesure, PY), TPointF.Create(BMP.Width - 10, PY), 1);
 
@@ -208,8 +209,8 @@ begin
     BMP.Canvas.Font.Size := 25;
     BMP.Canvas.Fill.Color := $DDFFFFFF;
     BMP.Canvas.Stroke.Color := $DDFFFFFF;
-    var Caption := 'Статистика вакансий HeadHunter за месяц от '+ FormatDateTime('DD.MM.YYYY', IncMonth(GetDate, -1));
-    var CaptionWidth := BMp.Width;
+    var Caption := 'Статистика вакансий HeadHunter за месяц от ' + FormatDateTime('DD.MM.YYYY', IncMonth(GetDate, -1));
+    var CaptionWidth := BMP.Width;
     BMP.Canvas.FillText(TRectF.Create(TPointF.Create(0, 30), CaptionWidth, TextHeigth), Caption, False, 1, [], TTextAlign.Center, TTextAlign.Leading);
 
     BMP.Canvas.Font.Size := 12;
@@ -265,13 +266,21 @@ begin
   end;
 end;
 
+procedure SendToTelegram(ChatId: string; const Text: string);
+begin
+  TDownload.GetRequest('https://api.telegram.org/' + TG_BOT_TOKEN +
+    '/sendMessage?chat_id=' + ChatId +
+    '&parse_mode=Markdown' +
+    '&text=' + TURLEncoding.URL.Encode(Text));
+end;
+
 procedure SendPictureToTelegram(ChatId: string; Stream: TStream);
 begin
   try
     Stream.Position := 0;
     TDownload.PostFile('https://api.telegram.org/' + TG_BOT_TOKEN +
       '/sendPhoto?chat_id=' + ChatId +
-      '&caption=' + TURLEncoding.URL.Encode('HH Stat ' + FormatDateTime('DD.MM.YYYY + 30', IncMonth(GetDate, -1))), 'photo', 'image.png', Stream);
+      '&caption=' + TURLEncoding.URL.Encode('HH Stat ' + FormatDateTime('DD.MM.YYYY + 30', IncMonth(GetDate, -1))), ['photo'], ['image.png'], [Stream]);
   except
     on E: Exception do
       Writeln('Не смогли отправить в Телеграм (', ChatId, ')', E.Message);
@@ -298,6 +307,12 @@ begin
     on E: Exception do
       Writeln('Не смогли отправить в ВК (', PeerId, '): ', E.Message);
   end;
+end;
+
+procedure WritelnWithSend(const Text: string);
+begin
+  Writeln(Text);
+
 end;
 
 { TChartItemInfo }
@@ -362,7 +377,9 @@ begin
             finally
               Stream.Free;
             end;
-          end;
+          end
+          else
+            SendToTelegram('-1001525223801', 'Не получены данные для графика HH Stat');
         finally
           Data.Free;
         end;
@@ -372,7 +389,10 @@ begin
     end;
   except
     on E: Exception do
+    begin
+      SendToTelegram('-1001525223801', 'HH Stat Exception: ' + E.ClassName + ': ' + E.Message);
       Writeln(E.ClassName, ': ', E.Message);
+    end;
   end;
   {$IFDEF DEBUG}
   readln;
