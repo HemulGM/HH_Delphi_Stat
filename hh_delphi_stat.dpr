@@ -175,12 +175,12 @@ begin
       //QueryHHVacancie(DB, 'fgx_hh', 'FGX');
       {$IFDEF RELEASE}
       //Delphi оффтоп
-      SendToTelegram('-1001212064902', '```'#13#10 + CommonText + '```');
+      SendToTelegram('-1001212064902', '#hhwork '+'```'#13#10 + CommonText + '```');
       SendToVk(2000000008, CommonText);
       //DevGeeks
       {$ENDIF}
       //Тестовый чат
-      SendToTelegram('-1001525223801', '```'#13#10 + CommonText + '```');
+      SendToTelegram('-1001525223801', '#hhwork '+'```'#13#10 + CommonText + '```');
       Writeln(CommonText);
     finally
       DB.Free;

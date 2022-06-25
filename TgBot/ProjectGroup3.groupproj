@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{7E1F0B66-C4E2-4DA7-BC4F-5E418EF3B588}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\..\TGBotMini\TGBotMini.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="DelphiTgBot.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\hh_delphi_stat.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\Chart\delphi_stat_chart.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="TGBotMini">
+        <MSBuild Projects="..\..\TGBotMini\TGBotMini.dproj"/>
+    </Target>
+    <Target Name="TGBotMini:Clean">
+        <MSBuild Projects="..\..\TGBotMini\TGBotMini.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TGBotMini:Make">
+        <MSBuild Projects="..\..\TGBotMini\TGBotMini.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DelphiTgBot">
+        <MSBuild Projects="DelphiTgBot.dproj"/>
+    </Target>
+    <Target Name="DelphiTgBot:Clean">
+        <MSBuild Projects="DelphiTgBot.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DelphiTgBot:Make">
+        <MSBuild Projects="DelphiTgBot.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="hh_delphi_stat">
+        <MSBuild Projects="..\hh_delphi_stat.dproj"/>
+    </Target>
+    <Target Name="hh_delphi_stat:Clean">
+        <MSBuild Projects="..\hh_delphi_stat.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hh_delphi_stat:Make">
+        <MSBuild Projects="..\hh_delphi_stat.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="delphi_stat_chart">
+        <MSBuild Projects="..\Chart\delphi_stat_chart.dproj"/>
+    </Target>
+    <Target Name="delphi_stat_chart:Clean">
+        <MSBuild Projects="..\Chart\delphi_stat_chart.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="delphi_stat_chart:Make">
+        <MSBuild Projects="..\Chart\delphi_stat_chart.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="TGBotMini;DelphiTgBot;hh_delphi_stat;delphi_stat_chart"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="TGBotMini:Clean;DelphiTgBot:Clean;hh_delphi_stat:Clean;delphi_stat_chart:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="TGBotMini:Make;DelphiTgBot:Make;hh_delphi_stat:Make;delphi_stat_chart:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

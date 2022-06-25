@@ -12,6 +12,9 @@
         <Projects Include="..\VKBotInformer\VKBotNerd.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="TgBot\DelphiTgBot.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="VKBotNerd:Make">
         <MSBuild Projects="..\VKBotInformer\VKBotNerd.dproj" Targets="Make"/>
     </Target>
+    <Target Name="DelphiTgBot">
+        <MSBuild Projects="TgBot\DelphiTgBot.dproj"/>
+    </Target>
+    <Target Name="DelphiTgBot:Clean">
+        <MSBuild Projects="TgBot\DelphiTgBot.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DelphiTgBot:Make">
+        <MSBuild Projects="TgBot\DelphiTgBot.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="hh_delphi_stat;delphi_stat_chart;VKBotNerd"/>
+        <CallTarget Targets="hh_delphi_stat;delphi_stat_chart;VKBotNerd;DelphiTgBot"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="hh_delphi_stat:Clean;delphi_stat_chart:Clean;VKBotNerd:Clean"/>
+        <CallTarget Targets="hh_delphi_stat:Clean;delphi_stat_chart:Clean;VKBotNerd:Clean;DelphiTgBot:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="hh_delphi_stat:Make;delphi_stat_chart:Make;VKBotNerd:Make"/>
+        <CallTarget Targets="hh_delphi_stat:Make;delphi_stat_chart:Make;VKBotNerd:Make;DelphiTgBot:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

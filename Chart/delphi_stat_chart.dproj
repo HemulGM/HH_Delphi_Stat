@@ -4,7 +4,7 @@
         <ProjectVersion>19.2</ProjectVersion>
         <FrameworkType>None</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Console</AppType>
@@ -159,6 +159,7 @@
         <DCCReference Include="..\..\SQLite\HGM.SQLang.pas"/>
         <DCCReference Include="..\..\SQLite\HGM.SQLite.pas"/>
         <DCCReference Include="..\..\SQLite\HGM.SQLite.Wrapper.pas"/>
+        <DCCReference Include="HHStat.Chart.pas"/>
         <None Include="..\Win32\Debug\stat.db"/>
         <None Include="..\bot_key.api_key"/>
         <None Include="..\vk_bot_key.api_key"/>
@@ -232,6 +233,12 @@
                 </DeployFile>
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
                     <Platform Name="iOSSimulator">
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\vk_bot_key.api_key" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
