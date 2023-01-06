@@ -37,14 +37,16 @@ begin
   end;
 end;
 
-procedure AddValue(DB: TSQLiteDatabase; Name: string; Value, Salary: integer);
+procedure AddValue(DB: TSQLiteDatabase; Name: string; Value, Salary, SMin, SMax: integer);
 begin
   with SQL.InsertInto('items') do
   begin
     AddValueAsParam('name');
     AddValueAsParam('value');
     AddValueAsParam('date');
-    DB.ExecSQL(GetSQL, [Name, Value, Now]);
+    AddValueAsParam('min');
+    AddValueAsParam('max');
+    DB.ExecSQL(GetSQL, [Name, Value, Now, SMin, SMax]);
     EndCreate;
   end;
 end;
@@ -66,9 +68,11 @@ begin
   Result := Value.PadRight(Size, ' ');
 end;
 
-function GetHHSalaryMedian(JSON: TJSONValue): Integer;
+function GetHHSalaryMedian(JSON: TJSONValue; out SMin, SMax: Integer): Integer;
 begin
   Result := 0;
+  SMin := Integer.MaxValue;
+  SMax := 0;
   var Salary: integer := 0;
   var Salaries: TArray<integer>;
   var Items: TJSONArray;
@@ -81,6 +85,10 @@ begin
     begin
       if Item.TryGetValue('salary.from', Salary) and Item.TryGetValue('salary.currency', Curr) and (Curr = 'RUR') then
       begin
+        if (Salary < SMin) and (Salary <> 0) then
+          SMin := Salary;
+        if Salary > SMax then
+          SMax := Salary;
         Salaries[ItemCount] := Salary;
         Inc(ItemCount);
       end;
@@ -94,16 +102,18 @@ begin
           Result := IfThen(Left > Right, 1, 0);
         end);
       Result := Salaries[ItemCount div 2] div 1000;
-      //for var i in Salaries do
-      //  Writeln(i);
     end;
   end;
+  if SMin = Integer.MaxValue then
+    SMin := 0;
+  SMin := SMin div 1000;
+  SMax := SMax div 1000;
 end;
 
 procedure QueryHHVacancie(DB: TSQLiteDatabase; const Name, Query: string);
 begin
   var Response: string;
-  if TDownload.GetText('https://api.hh.ru/vacancies?text=' + TURLEncoding.URL.Encode(Query) + '&per_page=100', Response) then
+  if TDownload.GetText('https://api.hh.ru/vacancies?text=' + TURLEncoding.URL.Encode(Query) + '&professional_role=96&search_field=description&search_field=name&enable_snippets=true&per_page=100', Response) then
   begin
     var JSON := TJSONObject.ParseJSONValue(Response);
     var Count: integer;
@@ -114,12 +124,13 @@ begin
       if Delta >= 0 then
       begin
         Delta := Count - Delta;
-        DeltaStr := ' ('+ IfThen(Delta > 0, '+') + Delta.ToString + ')';
+        DeltaStr := ' (' + IfThen(Delta > 0, '+') + Delta.ToString + ')';
       end;
-      var Salary := GetHHSalaryMedian(JSON);
-      CommonText := CommonText + FormatQuery(FormatQuery(Query + ': ', 14) + Count.ToString + DeltaStr, 28) + ' ~' + Salary.ToString + 'k' + #13#10;
-      Writeln('Вакансий на HH для ', Query, ': ', Count, DeltaStr, ' ~', Salary, 'k');
-      AddValue(DB, Name, Count, Salary);
+      var SMin, SMax: Integer;
+      var Salary := GetHHSalaryMedian(JSON, SMin, SMax);
+      CommonText := CommonText + FormatQuery(FormatQuery(Query + ': ', 14) + FormatQuery(Count.ToString, 4) + DeltaStr, 28) + ' ~' + FormatQuery(Salary.ToString + 'k', 4) + ' (' + SMin.ToString + '-' + SMax.ToString + ')' + #13#10;
+      Writeln('Вакансий на HH для ', Query, ': ', Count, DeltaStr, ' ~', Salary, 'k', ' ', SMin, '-', SMax);
+      AddValue(DB, Name, Count, Salary, SMin, SMax);
     finally
       JSON.Free;
     end;
@@ -129,18 +140,18 @@ end;
 procedure SendToTelegram(ChatId: string; const Text: string);
 begin
   TDownload.GetRequest('https://api.telegram.org/' + TG_BOT_TOKEN +
-  '/sendMessage?chat_id=' + ChatId +
-  '&parse_mode=Markdown' +
-  '&text=' + TURLEncoding.URL.Encode(Text));
+    '/sendMessage?chat_id=' + ChatId +
+    '&parse_mode=Markdown' +
+    '&text=' + TURLEncoding.URL.Encode(Text));
 end;
 
 procedure SendToVk(ChatId: integer; const Text: string);
 begin
   TDownload.GetRequest('https://api.vk.com/method/messages.send?access_token=' + VK_BOT_TOKEN +
-  '&peer_id=' + ChatId.ToString +
-  '&random_id=0' +
-  '&v=5.144' +
-  '&message=' + TURLEncoding.URL.Encode(Text));
+    '&peer_id=' + ChatId.ToString +
+    '&random_id=0' +
+    '&v=5.144' +
+    '&message=' + TURLEncoding.URL.Encode(Text));
 end;
 
 begin
@@ -175,12 +186,12 @@ begin
       //QueryHHVacancie(DB, 'fgx_hh', 'FGX');
       {$IFDEF RELEASE}
       //Delphi оффтоп
-      SendToTelegram('-1001212064902', '#hhwork '+'```'#13#10 + CommonText + '```');
+      SendToTelegram('-1001212064902', '#hhwork ' + '```'#13#10 + CommonText + '```');
       SendToVk(2000000008, CommonText);
       //DevGeeks
       {$ENDIF}
       //Тестовый чат
-      SendToTelegram('-1001525223801', '#hhwork '+'```'#13#10 + CommonText + '```');
+      SendToTelegram('-1001525223801', '#hhwork ' + '```'#13#10 + CommonText + '```');
       Writeln(CommonText);
     finally
       DB.Free;
@@ -194,3 +205,4 @@ begin
   readln;
   {$ENDIF}
 end.
+
